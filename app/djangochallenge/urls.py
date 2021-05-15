@@ -2,6 +2,7 @@
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.conf import settings
 
 #Admin page basic styling
 admin.site.site_header = 'Django Chanllenge'
@@ -13,12 +14,14 @@ admin.empty_value_display = '*** Empty ***'
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^matchflow_78594_kjyemgtyu/', include(admin.site.urls)),
+    url(r'^'+settings.ADMIN_PATH_FINDER+'/', include(admin.site.urls)),
     url(r'^', include("mailer.urls")),
 ]
 
-if settings.DEBUG:
+
+#add admin path to urlpatterns
+if settings.DJANGO_HOST != 'production':
     import debug_toolbar
-    urlpatterns = [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ] + urlpatterns
+    urlpatterns += [
+        url('__debug__/', include(debug_toolbar.urls)),
+    ]
