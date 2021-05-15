@@ -57,6 +57,7 @@ h3{
 .info__green-hover:hover .chip,
 .info__orange-hover:hover .chip{
     background: #795548 !important;
+    color: white;
 }
 
 .info__green-hover:hover .span__test-yellow{
