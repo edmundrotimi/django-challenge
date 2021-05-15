@@ -68,7 +68,7 @@ MIDDLEWARE_CLASSES = (
 if DJANGO_HOST == 'production':
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'ENGINE': 'django.db.backends.mysql',
             'NAME': config.get('database', 'NAME'),
             'HOST': config.get('database', 'HOST'),
             'PORT': config.get('database', 'PORT'),
@@ -79,7 +79,7 @@ if DJANGO_HOST == 'production':
 
     db_from_env = dj_database_url.config(conn_max_age=500)
     DATABASES['default'].update(db_from_env)
-    
+
 else:
     DATABASES = {
         'default': {
