@@ -2,7 +2,6 @@
 
 import os
 import socket
-import dj_database_url
 
 #import configparser to read config file
 from django.utils.six.moves import configparser
@@ -26,6 +25,7 @@ config = configparser.SafeConfigParser(allow_no_value=True, interpolation=None)
 #get django host name
 if not socket.gethostname().startswith('DESKTOP-TM7GRJA'):
     DJANGO_HOST = 'production'
+    config.read(f'{PROJECT_DIR}/production.cfg')
 else:
     DJANGO_HOST = 'development'
     config.read(f'{PROJECT_DIR}/local.cfg')
@@ -50,8 +50,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'whitenoise.runserver_nostatic',
-
     #project app
     'mailer',
 )
@@ -81,16 +79,7 @@ if DJANGO_HOST == 'production':
 
     db_from_env = dj_database_url.config(conn_max_age=500)
     DATABASES['default'].update(db_from_env)
-
-    #add whitenose to middleware
-    MIDDLEWARE = list(MIDDLEWARE_CLASSES)
-    MIDDLEWARE.insert(0, 'whitenoise.middleware.WhiteNoiseMiddleware')
-    MIDDLEWARE_CLASSES = tuple(MIDDLEWARE_CLASSES)
-
-    #whitenose settings
-    WHITENOISE_USE_FINDERS = True
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+    
 else:
     DATABASES = {
         'default': {
