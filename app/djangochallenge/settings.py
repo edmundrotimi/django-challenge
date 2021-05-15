@@ -2,6 +2,7 @@
 
 import os
 import socket
+import dj_database_url
 
 #import configparser to read config file
 from django.utils.six.moves import configparser
@@ -33,7 +34,12 @@ else:
 SECRET_KEY = config.get('security', 'SECRET_KEY')
 DEBUG = config.get('security', 'DEBUG')
 TEMPLATE_DEBUG = config.get('security', 'TEMPLATE_DEBUG')
-ALLOWED_HOSTS = config.get('security', 'ALLOWED_HOSTS')
+
+#check allowed host and convert to list
+CHECK_HOST = config.get('security', 'ALLOWED_HOSTS').replace("'", "")
+ALLOWED_HOSTS = list(CHECK_HOST.split(" "))
+
+ADMIN_PATH_FINDER = config.get('admin', 'ADMIN_PATH_FINDER').replace("'", "")
 
 
 INSTALLED_APPS = (
@@ -44,11 +50,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'whitenoise.runserver_nostatic',
 
     #project app
     'mailer',
 )
-
 
 
 MIDDLEWARE_CLASSES = (
@@ -72,6 +78,19 @@ if DJANGO_HOST == 'production':
             'PASSWORD': config.get('database', 'PASSWORD'),
         }
     }
+
+    db_from_env = dj_database_url.config(conn_max_age=500)
+    DATABASES['default'].update(db_from_env)
+
+    #add whitenose to middleware
+    MIDDLEWARE = list(MIDDLEWARE_CLASSES)
+    MIDDLEWARE.insert(0, 'whitenoise.middleware.WhiteNoiseMiddleware')
+    MIDDLEWARE_CLASSES = tuple(MIDDLEWARE_CLASSES)
+
+    #whitenose settings
+    WHITENOISE_USE_FINDERS = True
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 else:
     DATABASES = {
         'default': {
