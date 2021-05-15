@@ -1,134 +1,139 @@
-<!doctype html>
-{% load staticfiles %}
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Greetings Cards Spammers</title>
-	<script src="{% static "js/jquery-2.1.1.js" %}"></script>
-	<script>
-	$(document).ready(function(){
-		$("table tr").hover(function(){
-				$("table *").css("background-color", ""); // remove background color from everything (un-hover)
-			hoveretr = this;
-		$("td:contains(.)").each(function(){
+{% extends 'base.html' %}
+{% load humanize %}
+{% load htmlformat %}
 
-	 function processchildrow(theparentrow) {
-		 parenttbl = $(theparentrow).parents("table");
-		 found = 0; // find state machine marker
-		 markrows = new Array();
-		 parenttbl.find("tr").each(function(){
-			 var foundrow = this;
-			 if(found == 0 && foundrow == theparentrow) found = 1;
-			 if(found == 1 && $(foundrow).is(":contains(Orders)")) {
-				 orderscll= $(foundrow).find("td").eq(2);
-				 numorders=+orderscll.text().split(" ")[1]; //use + for faster integer
-				 if(numorders>3) markrows[markrows.length]=foundrow;//put in array for marking later
-				 return
-			 }
-			 if(found == 1 && foundrow != theparentrow  &&  $(foundrow).find("td:first").text().length) // has company name in first cell
-				 found = 2;
-		 });
-		 for(key in markrows) {
-			 row=markrows[key]
-			 $(row).find("td").css("background-color", "yellow");
-		 }
-		 return markrows
- 
- 
-	 }
+{# call main css stylesheet #}
+{% block extrastyle %} {{block.super}} {% endblock extrastyle %}
+{# page title#}
+{% block pageTitle %} {{block.super}} {% endblock pageTitle %}
 
-			price = $(this).text();
-			trueprice = "";
-			if (price.indexOf(".", price.length - ".".length) === -1)
-			{
-				trueprice = price;
-			}
+{% block content %}
 
-			if (trueprice)
-			{
-				if (parseInt(trueprice) > 50000)
-				{
-					finalprice = parseInt(trueprice);
-					firstsib = $(this).siblings(":first");
-					therow = $(firstsib).parents("tr");
-
-					$(therow).find("td").each(function(elem){
-						elem = $(this);
-
-						if(therow[0] !== hoveretr) return; // === better than ==
-
-						if($(elem).css("background-color"))
-							$(elem).css("background-color", ""); // remove background color
-
-						$(elem).css("background-color", 'green');
-						processchildrow(therow[0]);
-					});
-				}
-				else
-				{
-					finalprice = parseInt(trueprice);
-					firstsib = $(this).siblings(":first");
-					therow = $(firstsib).parents("tr");
-
-					$(therow).find("td").each(function(elem){
-						elem = $(this);
-						if(therow[0] !== hoveretr) return; // === better than ==
-
-						if($(elem).css("background-color"))
-							$(elem).css("background-color", ""); // remove background color
-
-						$(elem).css("background-color", 'orange');
-					});
-				}
-			}
-			
-
-		});
-		});
-	});
-	</script>
-</head>
-<body>
-	<div style="width:1020px; margin: 0 auto; border:1px solid blue;">
-	<table width="1020">
-	{% if is_paginated %}
-	<tr><td>
-		{% if page_obj.has_previous %}
-		<a href="?page={{ page_obj.previous_page_number }}" class="pager-prev{% if not page_obj.has_previous %} inactive{% endif %}">&laquo;</a>
-		{% endif %}
-		</td>
-		<td></td>
-		<td></td>
-		<td>
-		{% if page_obj.has_next %}
-			<a href="?page={{ page_obj.next_page_number }}" class="pager-next{% if not page_obj.has_next %} inactive{% endif %}">&raquo;</a>
-		{% endif %}
-		</td>
-	</tr>
+	{% if page_obj.has_previous %}		
+		<a href="?page={{ page_obj.previous_page_number }}" class="navigate_before waves-effect waves-light pulse navi">
+			<i class="material-icons large">navigate_before</i>
+		</a>
 	{% endif %}
-	<tr>
-		<th>Name</th>
-		<th>Order Count</th>
-		<th>Order Sum</th>
-		<th>Select</th>
-	</tr>
-		{% for company in company_list %}
-		<tr>
-			<td>{{ company.name }}</td>
-			<td>{{ company.get_order_count }}</td>
-			<td>{{ company.get_order_sum|floatformat:2 }}</td>
-			<td><input type="checkbox" name="select{{company.pk}}" id=""></td>
-		</tr>
-			{% for contact in company.contacts.all %}
-			<tr>
-				<td>&nbsp;</td>
-				<td>{{ contact.first_name }} {{ contact.last_name }}</td>
-				<td>Orders: {{ contact.get_order_count }}</td>
-				<td></td>
-			</tr>
-			{% endfor %}
+
+
+	<div class="container info">
+
+		<h1 class="info-sectionheader">Mailer Info</h1>
+
+		{% for company in companies %}
+			{% comment %} conditional check for card coloring {% endcomment %}
+			{% if company.total_paid > 50000 and company.number_of_orders > 3 %}
+				<div class="card-panel hoverable z-depth-1 grey darken-1 info__green-hover">
+			{% else %}
+				<div class="card-panel hoverable z-depth-1 grey darken-1 info__orange-hover">
+			{% endif %}
+
+				<span class="right chip hoverable white info-totalcount">
+					Total: {{ company.total_paid|floatformat:2|intcomma|bold:'bolder' }}
+				</span>
+				<span class="right chip hoverable white info-ordercount">
+					{% comment "About Order Count" %}
+						Order sum is the total quantity of product or goods ordered for 
+						a particular company.
+					{% endcomment %}
+					Order Sum: {{ company.total_orders|intcomma }}
+				</span>
+				<h3 class="info-companyname">{{company.name|title}}</h3>
+				<span class="chip grey lighten-2 waves-effect waves-light pulse info__style-exclude">
+					Orders : {{ company.number_of_orders|bold:900|safe}}
+				</span>
+
+				<br>
+				<br>
+				{# List of orders#}
+				<p class='info-order-receipt card-panel'>
+					{% if company.order_receipts %}
+						{{company.order_receipts}}.
+					{% else %}
+						No Order Received.
+					{% endif %}
+				</p>
+				
+			
+				<div class="info-btn__floating btn-floating btn-large blue">
+					<div class="right info__selectbox">				
+						<input id='select_{{company.bic|truncatechars:18|cut:'...'}}' 
+							type="checkbox" name="select_{{company.bic|truncatechars:18|cut:'...'}}">
+						<label for="select_{{company.bic|truncatechars:18|cut:'...'}}"></label>
+					</div>
+				</div>
+			</div>
 		{% endfor %}
-	</table>
 	</div>
-</body>
-</html>
+
+
+	{% if page_obj.has_next %}
+		<a href="?page={{ page_obj.next_page_number }}" class="navigate_next waves-effect waves-light pulse navi">
+			<i class="material-icons large">navigate_next</i>
+		</a>
+	{% endif %}
+	
+{% endblock content %}
+
+{% block script %}
+	{{block.super}}
+	<script>
+		var flowq = [];
+
+		/* get all the customer order count */
+		var receipts = document.querySelectorAll('.info-order-receipt')
+
+		/* conver node list to Array */
+		receipt = Array.from(receipts)
+
+		/* loop throught order count */
+		receipt.forEach(function(item,index, arr){
+
+			text = item.textContent
+			var splite = text.trim().split(' ')
+			for(var x = 0; x < splite.length; x++){
+
+				/* remove unwanted content from list */
+				if(splite[x] !== ""){
+					flowq.push(splite[x])
+				}
+
+				/*
+					check if the order count is greater than 3.
+					If true add a styling class
+				*/
+				if(splite[x] === ':'){
+					if(parseInt(splite[x + 1]) > 3)
+						item.parentElement.className += ' info__content-yellow'
+				}
+			}
+
+			var string = '';
+			var z = 0;
+			
+			/* use ':' to determine relative position of content and
+			add to a variable*/
+			for(z; z < flowq.length; z++){
+				if(flowq[z] === ":"){
+					var string_html =  ''
+					if(flowq[z + 1].split(',')[0] > 3){
+						string_html = '<span class="span__test-yellow">'+flowq[z-2] + ' ' + flowq[z-1] + ' : ' + flowq[z + 1]+ ' '+'</span>'
+					}else{
+						string_html = '<span>'+flowq[z-2] + ' ' + flowq[z-1] + ' : ' + flowq[z + 1]+ ' '+'</span>'
+					}
+					string += string_html
+
+					/* since the order list has '.' signifying the 
+					end of the each particular list, it is used to as check to
+					determine when to apped */
+					if(flowq[z + 1].includes(".")){
+						arr[index].innerHTML = string
+						string = '';
+						z = z+1;
+					}
+				}
+			}			
+		})
+	</script>
+{% endblock script %}
+
