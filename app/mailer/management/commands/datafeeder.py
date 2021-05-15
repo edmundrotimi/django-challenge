@@ -30,6 +30,8 @@ class Command(BaseCommand):
         companies = 500
         contacts = 10
         orders = 10
+        
+        self.stdout.write(self.style.WARNING('About to create records(companies, contacts, orders) in the database'))
 
         for idx in range(0, companies):
             try:
@@ -57,9 +59,9 @@ class Command(BaseCommand):
                         order.company = company
                         order.contact = contact
                         order.total = random.random() * random.randint(100, 10000)
+                        order.order_count_quantity = random.randint(1, orders) 
                         order.order_date = now() - datetime.timedelta(days=-past)
                         order.save()
-
             except Exception as e:
                 self.stderr.write(self.style.ERROR('Stoping record creation...'))
                 raise CommandError('Error! Failed to generate record. \n %s (%s)' % (e,traceback.format_exc()))
