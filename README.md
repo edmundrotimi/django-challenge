@@ -4,41 +4,8 @@ Anders Innovations Django Challenge
 An important note
 -----------------
 
-This project is proprietary and private. This means you **may not** publish it
-on Github or elsewhere, or share it with your friends (no matter how good
-friends they are).
-
-Task Description
-----------------
-
-This is a site that is very slow and not very usable.
-
-Your task is to make it significantly faster and/or prettier and/or more usable
-while adhering to the specifications in `specs.md`.
-
-* If you feel like you're more of a backend wizard, feel free to tackle the
-  project on that end.
-* If you feel like you're more of a frontend guru, feel free to do what you can
-  there.
-* If you feel like you're a full-stack rockstar developer, good for you! Do
-  everything you can and be awesome.
-* If you're a graphic designer, you're probably already confused with these
-  instructions.
-
-You can use whatever tools you want to tackle this problem. The application has
-django-debug-toolbar preinstalled.
-
-A note on version history
--------------------------
-
-If at all possible, please record the initial state of the repository (once
-unzipped) in a Git repository.
-
-Record your changes -- in whichever logical increments make sense to you -- in
-the Git repository, and mail the completed Git repository back to us. (Git's
-bundle format is fine, as is just a zipped-up `.git` directory.)
-
-It's also okay (though not quite as okay) to just send the final state.
+This project uses Python socket (socket.gethostname()) to get the host name.
+Kindly adjust appropriately to reflect your local system.
 
 Installation
 ------------
@@ -88,6 +55,7 @@ After activating the virtualenv do the following
 ```
 cd app
 pip install -r requirements.txt
+python manage.py makemigrations
 python manage.py migrate --noinput
 python manage.py datafeeder
 python manage.py runserver
@@ -96,14 +64,6 @@ python manage.py runserver
 Now the test should be visible in the browser at
 [`http://127.0.0.1:8000/`](http://127.0.0.1:8000/).
 
-Returning the task
-------------------
-
-Once you think you're done with the task, zip/tar up what you have (excluding
-the `venv` directory -- we don't need that and you shouldn't have changed it in
-the first place) and send it back to us.
-
-For version history, see "A note on version history" in this document.
 
 Troubleshooting
 ---------------
