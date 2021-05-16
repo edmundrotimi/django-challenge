@@ -81,58 +81,70 @@
 		var flowq = [];
 
 		/* get all the customer order count */
-		var receipts = document.querySelectorAll('.info-order-receipt')
+		var receipts = document.querySelectorAll('.info-order-receipt');
 
 		/* conver node list to Array */
-		receipt = Array.from(receipts)
+		receipt = Array.from(receipts);
 
 		/* loop throught order count */
 		receipt.forEach(function(item,index, arr){
 
-			text = item.textContent
-			var splite = text.trim().split(' ')
+			text = item.textContent;
+
+			var splite = text.trim().split(' ');
+
 			for(var x = 0; x < splite.length; x++){
 
 				/* remove unwanted content from list */
 				if(splite[x] !== ""){
-					flowq.push(splite[x])
-				}
+
+					flowq.push(splite[x]);
+				};
 
 				/*
 					check if the order count is greater than 3.
 					If true add a styling class
 				*/
 				if(splite[x] === ':'){
+
 					if(parseInt(splite[x + 1]) > 3)
-						item.parentElement.className += ' info__content-yellow'
-				}
-			}
+
+						item.parentElement.className += ' info__content-yellow';
+				};
+			};
 
 			var string = '';
+
 			var z = 0;
 			
 			/* use ':' to determine relative position of content and
 			add to a variable*/
 			for(z; z < flowq.length; z++){
 				if(flowq[z] === ":"){
-					var string_html =  ''
+
+					var string_html =  '';
+
 					if(flowq[z + 1].split(',')[0] > 3){
-						string_html = '<span class="span__test-yellow">'+flowq[z-2] + ' ' + flowq[z-1] + ' : ' + flowq[z + 1]+ ' '+'</span>'
+						string_html = '<span class="span__test-yellow">'+flowq[z-2] + ' ' + flowq[z-1] + ' : ' + flowq[z + 1]+ ' '+'</span>';
 					}else{
-						string_html = '<span>'+flowq[z-2] + ' ' + flowq[z-1] + ' : ' + flowq[z + 1]+ ' '+'</span>'
-					}
-					string += string_html
+						string_html = '<span>'+flowq[z-2] + ' ' + flowq[z-1] + ' : ' + flowq[z + 1]+ ' '+'</span>';
+					};
+
+					string += string_html;
 
 					/* since the order list has '.' signifying the 
 					end of the each particular list, it is used to as check to
 					determine when to apped */
 					if(flowq[z + 1].includes(".")){
-						arr[index].innerHTML = string
+
+						arr[index].innerHTML = string;
+
 						string = '';
+
 						z = z+1;
-					}
-				}
-			}			
+					};
+				};
+			};	
 		})
 	</script>
 {% endblock script %}
